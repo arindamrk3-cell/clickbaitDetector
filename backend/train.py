@@ -68,15 +68,23 @@ x_train,x_test,y_train,y_test=train_test_split(
 )
 vectorizer=TfidfVectorizer(
     stop_words='english',
-    max_features=15000,
+    max_features=20000,
     ngram_range=(1,2),
-    min_df=2
+    min_df=2,
+    max_df=0.9,
+    sublinear_tf=True
 )
 x_train_vect=vectorizer.fit_transform(x_train)
 x_test_vect=vectorizer.transform(x_test)
 model=LinearSVC(
     class_weight='balanced'
 )
+#model=LogisticRegression(
+#    max_iter=1000,
+#    class_weight='balanced',
+#    C=1.5,
+#    solver='liblinear'
+#)
 model.fit(x_train_vect,y_train)
 y_pred=model.predict(x_test_vect)
 
