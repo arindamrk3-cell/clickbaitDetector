@@ -12,7 +12,6 @@
 - TF-IDF + Logistic Regression
 - EasyOCR
 - SpeechRecognition
-- FFmpeg
 
 ## How to Run
 
