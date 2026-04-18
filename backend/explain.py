@@ -1,0 +1,87 @@
+import re
+clickbait_patterns = [
+    r"you won't believe",
+    r"shocking",
+    r"what happened next",
+    r"this is why",
+    r"top \d+",
+    r"amazing",
+    r"unbelievable",
+    r"secret",
+    r"revealed",
+    r"guess what",
+    r"this will blow your mind",
+    r"can't believe",
+    r"will make you",
+    r"what they don't want you to know",
+    r"this is what happened",
+    r"the reason why",
+    r"you won't believe what happened",
+    r"this is how",
+    r"you won't believe what they found",
+    r"this is what they don't want you to know",
+    r"you won't believe what happened next",
+    r"this is what happened next",
+    r"you won't believe what they revealed",
+    r"this is what they revealed",
+    r"you won't believe what they found out",
+    r"this is what they found out",
+    r"you won't believe what they discovered",
+    r"this is what they discovered",
+    r"you won't believe what they uncovered",
+    r"this is what they uncovered",
+    r"you won't believe what they exposed",
+    r"this is what they exposed",
+    r"you won't believe what they uncovered",
+    r"this is what they uncovered",
+    r"you won't believe what they revealed",
+    r"this is what they revealed",
+    r"you won't believe what they found",
+    r"this is what they found",
+    r"you won't believe what they uncovered",
+    r"this is what they uncovered",
+    r"you won't believe what they exposed",
+    r"this is what they exposed",
+    r"you won't believe what they discovered",
+    r"this is what they discovered",
+    r"you won't believe what they revealed",
+    r"this is what they revealed",
+    r"you won't believe what they found out",
+    r"this is what they found out",
+    r"you won't believe what they uncovered",
+    r"this is what they uncovered",
+    r"you won't believe what they exposed",
+    r"this is what they exposed",
+    r"you won't believe what they discovered",
+    r"this is what they discovered",
+    r"you won't believe what they revealed",
+    r"this is what they revealed",
+    r"you won't believe what they found",
+    r"this is what they found",
+    r"you won't believe what they uncovered",
+    r"this is what they uncovered",
+    r"you won't believe what they exposed",
+    r"this is what they exposed",
+    r"you won't believe what they discovered",
+    r"this is what they discovered",
+    r"you won't believe what they revealed",
+    r"this is what they revealed",
+    r"you won't believe what they found out",
+    r"this is what they found out",
+    r"you won't believe what they uncovered",
+    r"this is what they uncovered",
+    r"earn money online",
+]
+def get_explanation(text):
+    text=text.lower()
+    reasons=set()
+    for pattern in clickbait_patterns:
+        if re.search(pattern,text):
+            reasons.add(f"contains clickbait phares: '{pattern}'")
+    if "!" in text:
+        reasons.add("Uses exclamation marks")
+    if "?" in text :
+        reasons.add("users curiosity questions")
+    if len(text.split())<=6:
+        reasons.add("Very short headline (common in clickbait)")
+    return reasons

@@ -1,0 +1,10 @@
+flask
+flask-cors
+numpy
+scikit-learn
+pandas
+easyocr
+pillow
+speechrecognition
+moviepy
+opencv-python

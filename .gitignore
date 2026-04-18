@@ -1,0 +1,17 @@
+# Python
+__pycache__/
+*.pyc
+
+# Uploads
+uploads/
+
+# Environment
+venv/
+.env
+
+# Model files (optional but recommended)
+*.pkl
+
+# OS
+.DS_Store
+Thumbs.db

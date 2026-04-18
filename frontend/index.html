@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Clickbait Detector 🚀</title>
+
+<style>
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        font-family: 'Segoe UI', sans-serif;
+    }
+
+    body {
+        background: linear-gradient(135deg, #667eea, #764ba2);
+        height: 100vh;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+
+    .container {
+        background: rgba(255, 255, 255, 0.15);
+        backdrop-filter: blur(15px);
+        padding: 30px;
+        border-radius: 20px;
+        width: 400px;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        color: white;
+        text-align: center;
+        animation: fadeIn 1s ease-in-out;
+    }
+
+    h2 {
+        margin-bottom: 20px;
+    }
+
+    input[type="text"],
+    input[type="file"] {
+        width: 100%;
+        padding: 10px;
+        margin: 10px 0;
+        border-radius: 10px;
+        border: none;
+        outline: none;
+        transition: 0.3s;
+    }
+
+    input[type="text"]:focus {
+        transform: scale(1.05);
+    }
+
+    label {
+        font-size: 12px;
+        opacity: 0.8;
+    }
+
+    button {
+        width: 100%;
+        padding: 12px;
+        background: linear-gradient(135deg, #ff416c, #ff4b2b);
+        border: none;
+        border-radius: 12px;
+        color: white;
+        font-size: 16px;
+        cursor: pointer;
+        transition: 0.3s;
+        margin-top: 10px;
+    }
+
+    button:hover {
+        transform: scale(1.05);
+        box-shadow: 0 5px 20px rgba(0,0,0,0.3);
+    }
+
+    .result {
+        margin-top: 20px;
+        text-align: left;
+    }
+
+    .clickbait {
+        color: #ff4b2b;
+        font-weight: bold;
+    }
+
+    .safe {
+        color: #00ffcc;
+        font-weight: bold;
+    }
+
+    ul {
+        margin-top: 10px;
+        padding-left: 20px;
+    }
+
+    li {
+        margin-bottom: 5px;
+    }
+
+    .card {
+        background: rgba(255,255,255,0.1);
+        padding: 10px;
+        border-radius: 10px;
+        margin-top: 10px;
+    }
+
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(20px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+</style>
+
+</head>
+<body>
+
+<div class="container">
+    <h2>🚀 Clickbait Detector</h2>
+
+```
+<input type="text" id="textInput" placeholder="Enter headline..." required/>
+
+<label>📸 Upload Thumbnail</label>
+<input type="file" id="imageInput" accept="image/*" />
+
+<label>🎥 Upload Video</label>
+<input type="file" id="videoInput" accept="video/*" />
+
+<button onclick="analyzeFinal()">Analyze 🔍</button>
+
+<div class="result" id="result"></div>
+```
+
+</div>
+
+<script>
+async function analyzeFinal() {
+    const text = document.getElementById("textInput").value;
+    const image = document.getElementById("imageInput").files[0];
+    const video = document.getElementById("videoInput").files[0];
+
+    const formData = new FormData();
+    formData.append("text", text);
+
+    if (image) formData.append("image", image);
+    if (video) formData.append("video", video);
+
+    const res = await fetch("http://127.0.0.1:5000/predict_final", {
+        method: "POST",
+        body: formData
+    });
+
+    const data = await res.json();
+
+    let html = "";
+
+    if (data.prediction === "clickbait") {
+        html += `<p class="clickbait">⚠️ Clickbait Detected</p>`;
+    } else {
+        html += `<p class="safe">✅ Not Clickbait</p>`;
+    }
+
+    html += `<div class="card"><b>Confidence:</b> ${data.confidence?.toFixed(2)}</div>`;
+    html += `<div class="card"><b>Score:</b> ${data.clickbait_score}</div>`;
+    html += `<div class="card"><b>Speech:</b> ${data.speech_text || "N/A"}</div>`;
+    html += `<div class="card"><b>Thumbnail:</b> ${data.thumbnail_text || "N/A"}</div>`;
+
+    html += "<div class='card'><b>Reasons:</b><ul>";
+    data.explanation.forEach(r => {
+        html += `<li>${r}</li>`;
+    });
+    html += "</ul></div>";
+
+    document.getElementById("result").innerHTML = html;
+}
+</script>
+
+</body>
+</html>
