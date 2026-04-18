@@ -322,7 +322,7 @@ def predict_final():
                 strong_thumbnail_signal = True
                 break
 
-        if strong_thumbnail_signal or mismatch_thumb or mismatch_audio:
+        if strong_thumbnail_signal or (mismatch_thumb is True) or (mismatch_audio is True):
             pred = 1
             explanations.add("Prediction adjusted using semantic and hybrid signals")
         score = 0
