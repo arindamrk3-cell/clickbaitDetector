@@ -1,6 +1,6 @@
 from flask import Flask, request, jsonify
 from flask_cors import CORS
-from matplotlib.pyplot import title
+from matplotlib.pyplot import text, title
 import numpy as np,os
 import pickle
 #from mismatch import check_semantic_mismatch
@@ -11,6 +11,8 @@ from mismatch import check_semantic_mismatch
 from audio_extractor import extract_audio
 from speech_to_text import audio_to_text
 from youtube_utils import get_video_info, download_audio, download_thumbnail, clean_youtube_url
+from sentence_transformers import SentenceTransformer, util
+semantic_model = SentenceTransformer('all-MiniLM-L6-v2')
 app=Flask(__name__)
 CORS(app)
 
@@ -218,7 +220,27 @@ def predict_youtube():
     except Exception as e:
         return jsonify({"error": str(e)}), 500
     
-    
+def semantic_similarity(text1, text2):
+    if not text1.strip() or not text2.strip():
+        return 0
+
+    emb1 = semantic_model.encode(text1, convert_to_tensor=True)
+    emb2 = semantic_model.encode(text2, convert_to_tensor=True)
+
+    score = util.cos_sim(emb1, emb2).item()
+    return score
+
+
+def semantic_mismatch(title, other_text):
+    if not other_text.strip():
+        return None
+
+    score = semantic_similarity(title, other_text)
+
+    if score < 0.35:
+        return True
+    else:
+        return False
 @app.route("/predict_final", methods=["POST"])
 def predict_final():
     try:
@@ -269,12 +291,20 @@ def predict_final():
             explanations.add("Speech detected from video")
         thumbnail_signals = detect_thumbnail_signal(extracted_text)
         explanations.update(thumbnail_signals)
-        mismatch = check_semantic_mismatch(text, extracted_text)
+        #mismatch = check_semantic_mismatch(text, extracted_text)
 
-        if mismatch is True:
-            explanations.add("Title and thumbnail mismatch detected")
-        elif mismatch is False:
-            explanations.add("Title and thumbnail are aligned")
+        # if mismatch is True:
+        #     explanations.add("Title and thumbnail mismatch detected")
+        # elif mismatch is False:
+        #     explanations.add("Title and thumbnail are aligned")
+        mismatch_thumb = semantic_mismatch(text, extracted_text)
+        mismatch_audio = semantic_mismatch(text, speech_text)
+        
+        if mismatch_thumb:
+            explanations.add("Title and thumbnail semantic mismatch detected")
+        
+        if mismatch_audio:
+            explanations.add("Title and audio semantic mismatch detected")
         strong_thumbnail_signal = False
 
         if (
@@ -292,9 +322,9 @@ def predict_final():
                 strong_thumbnail_signal = True
                 break
 
-        if strong_thumbnail_signal or mismatch is True:
+        if strong_thumbnail_signal or mismatch_thumb or mismatch_audio:
             pred = 1
-            explanations.add("Prediction adjusted due to strong multimodal signals")
+            explanations.add("Prediction adjusted using semantic and hybrid signals")
         score = 0
 
         if "Money-related claim detected" in thumbnail_signals:
